@@ -30,7 +30,7 @@ run_DWLS(
 \item{...}{PARAM_DESCRIPTION}
 }
 \value{
-OUTPUT_DESCRIPTION
+a Seurat Object
 }
 \description{
 Perform de-convolution by DWLS, more detailed information refer to \url{https://github.com/dtsoucas/DWLS}

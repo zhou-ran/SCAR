@@ -103,10 +103,10 @@ run_DWLS <- function(obj,
   gene_intersect <-
     intersect(rownames(spots_raw_mtx), rownames(reference))
 
-  reference <- Matrix::as.matrix(reference[gene_intersect, ])
+  reference <- Matrix::as.matrix(reference[gene_intersect,])
 
 
-  cluster_inf <- dat@meta.data[,group.by]
+  cluster_inf <- dat@meta.data[, group.by]
 
   enrich_spot_proportion = Giotto:::enrich_deconvolution(
     expr = spots_raw_mtx,
@@ -128,3 +128,70 @@ run_DWLS <- function(obj,
   obj@misc$dwls <- t(data.frame(spot_proportion))
   return(obj)
 }
+
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param obj PARAM_DESCRIPTION
+#' @param reference PARAM_DESCRIPTION
+#' @param sc_meta PARAM_DESCRIPTION
+#' @param assay PARAM_DESCRIPTION, Default: 'Spatial'
+#' @param minCountGene PARAM_DESCRIPTION, Default: 0
+#' @param minCountSpot PARAM_DESCRIPTION, Default: 0
+#' @param ... PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @seealso
+#'  \code{\link[checkmate]{checkClass}}
+#'  \code{\link[Seurat]{reexports}}
+#'  \code{\link[assertable]{assert_colnames}}
+#'  \code{\link[CARD]{createCARDObject}}, \code{\link[CARD]{CARD_deconvolution}}
+#' @rdname run_CARD
+#' @export
+#' @importFrom checkmate assert_class
+#' @importFrom Seurat GetTissueCoordinates GetAssayData
+#' @importFrom assertable assert_colnames
+#' @importFrom CARD createCARDObject CARD_deconvolution
+#'
+run_CARD <- function(obj,
+                     reference,
+                     sc_meta,
+                     assay = 'Spatial',
+                     minCountGene = 0,
+                     minCountSpot = 0,
+                     ...) {
+  checkmate::assert_class(reference, 'dgCMatrix')
+
+  spatial_location <- Seurat::GetTissueCoordinates(obj)
+  colnames(spatial_location) <- c('x', 'y')
+
+  assertable::assert_colnames(
+    data = sc_meta,
+    colnames = c('cellID', 'cellType', 'sampleInfo'),
+    quiet = T
+  )
+
+  CARD_obj = CARD::createCARDObject(
+    sc_count = reference,
+    sc_meta = sc_meta,
+    spatial_count = Seurat::GetAssayData(obj, slot = 'counts', assay = assay),
+    spatial_location = spatial_location,
+    ct.varname = "cellType",
+    ct.select = unique(sc_meta$cellType),
+    sample.varname = "sampleInfo",
+    minCountGene = minCountGene,
+    minCountSpot = minCountSpot
+  )
+
+  CARD_obj = CARD::CARD_deconvolution(CARD_object = CARD_obj)
+
+  obj@misc$CARD <- CARD_obj@Proportion_CARD
+
+  return(obj)
+}
+
