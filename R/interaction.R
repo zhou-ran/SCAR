@@ -64,7 +64,7 @@ run_cooccur <-
       hg_gene_use[hg_gene_use %in% unique(c(lr_netword$from, lr_netword$to))]
 
 
-    mm_mtx <- Seurat::GetAssayData(dat, slot = slot_2, assay = assay_2)
+    mm_mtx <- Seurat::GetAssayData(obj, slot = slot_2, assay = assay_2)
     mm_binary_mtx <- +(mm_mtx > threshold_gene_exp)
 
     mm_gene_use <-
@@ -148,4 +148,128 @@ run_cooccur <-
       })
 
     return(res_para_comb)
+  }
+
+#' @title Generate a interaction score for each ligant-receptor pair.
+#' @description FUNCTION_DESCRIPTION
+#' @param obj PARAM_DESCRIPTION
+#' @param lr_network PARAM_DESCRIPTION
+#' @param threshold_gene_exp PARAM_DESCRIPTION, Default: 0
+#' @param slot_1 PARAM_DESCRIPTION, Default: 'data'
+#' @param assay_1 PARAM_DESCRIPTION, Default: 'Spatial'
+#' @param slot_2 PARAM_DESCRIPTION, Default: 'data'
+#' @param assay_2 PARAM_DESCRIPTION, Default: 'Spatial'
+#' @param cores PARAM_DESCRIPTION, Default: 4
+#' @param ... PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @seealso
+#'  \code{\link[stringr]{case}}
+#'  \code{\link[Seurat]{reexports}}
+#'  \code{\link[Matrix]{colSums}}
+#'  \code{\link[tibble]{tibble}}
+#'  \code{\link[parallel]{mclapply}}
+#' @rdname run_iascore
+#' @export
+#' @importFrom stringr str_to_title
+#' @importFrom Seurat GetAssayData
+#' @importFrom Matrix rowSums rowMeans
+#' @importFrom tibble tibble
+#' @importFrom parallel mclapply
+#'
+run_iascore <-
+  function(obj,
+           lr_network,
+           threshold_gene_exp = 0,
+           slot_1 = 'data',
+           assay_1 = 'Spatial',
+           slot_2 = 'data',
+           assay_2 = 'Spatial',
+           cores = 4,
+           ...) {
+    # first to check the dataframe format is from nichnet?
+    # download from https://zenodo.org/record/3260758/files/lr_network.rds?download=1
+
+    # replace human gene id into mouse gene id.
+
+    lr_netword$from_mm <- stringr::str_to_title(lr_netword$from)
+    lr_netword$to_mm <- stringr::str_to_title(lr_netword$to)
+
+    # prepare matrix information
+    hg_mtx <- Seurat::GetAssayData(obj,
+                                   slot = slot_1,
+                                   assay = assay_1)
+    hg_binary_mtx <- +(hg_mtx > threshold_gene_exp)
+
+    hg_gene_use <-
+      rownames(hg_binary_mtx)[Matrix::rowSums(hg_binary_mtx) > 0]
+    hg_gene_use <-
+      hg_gene_use[hg_gene_use %in% unique(c(lr_netword$from, lr_netword$to))]
+
+
+    mm_mtx <-
+      Seurat::GetAssayData(obj, slot = slot_2, assay = assay_2)
+    mm_binary_mtx <- +(mm_mtx > threshold_gene_exp)
+
+    mm_gene_use <-
+      rownames(mm_binary_mtx)[Matrix::rowSums(mm_binary_mtx) > 0]
+    mm_gene_use <-
+      mm_gene_use[mm_gene_use %in% unique(c(lr_netword$from_mm, lr_netword$to_mm))]
+
+
+    final_pair_mtx <- tibble::tibble(
+      from = c(lr_netword$from, lr_netword$from_mm),
+      to = c(lr_netword$to_mm, lr_netword$to),
+      source = c(lr_netword$source, lr_netword$source),
+      database = c(lr_netword$database, lr_netword$database)
+    )
+
+    gene_all <- c(hg_gene_use, mm_gene_use)
+    gene_all <- c(hg_gene_use, mm_gene_use)
+
+    final_pair_mtx <-
+      final_pair_mtx[final_pair_mtx$from %in% gene_all &
+                       final_pair_mtx$to %in% gene_all, ]
+
+
+    mtx_use <-
+      rbind(mm_mtx[rownames(mm_mtx) %in% c(final_pair_mtx$from, final_pair_mtx$to),],
+            hg_mtx[rownames(hg_mtx) %in% c(final_pair_mtx$from, final_pair_mtx$to),])
+
+
+    mean_exp <- Matrix::rowMeans(mtx_use)
+
+    exp_rate <- Matrix::rowMeans(+(mtx_use > 0))
+
+    interaction_df <- data.frame(
+      from = final_pair_mtx$from,
+      to = final_pair_mtx$to,
+      source = paste(final_pair_mtx$database, final_pair_mtx$source, sep =
+                       ':'),
+      score = mean_exp[final_pair_mtx$from] * mean_exp[final_pair_mtx$to],
+      rate = exp_rate[final_pair_mtx$from] * exp_rate[final_pair_mtx$to]
+    )
+
+    ## generate a random interaction pair to simulate a distribution
+
+    simu_distri <- parallel::mclapply(1:10000, function(i) {
+      gene_pair <- sample(rownames(mtx_use), 2)
+      return(prod(Matrix::rowMeans(mtx_use[gene_pair,])))
+    }, mc.cores = cores)
+
+    simu_distri <- unlist(simu_distri)
+
+
+    interaction_df$pval <-
+      unlist(lapply(interaction_df$score, function(x) {
+        1 - sum(+(x > simu_distri)) / (length(simu_distri) + 1)
+      }))
+
+    return(interaction_df)
   }
