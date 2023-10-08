@@ -2,6 +2,8 @@
 #' @description FUNCTION_DESCRIPTION
 #' @param obj PARAM_DESCRIPTION
 #' @param lr_network PARAM_DESCRIPTION
+#' @param idents PARAM_DESCRIPTION, Default: NULL
+#' @param spots PARAM_DESCRIPTION, Default: NULL
 #' @param threshold_gene_exp PARAM_DESCRIPTION, Default: 0
 #' @param slot_1 PARAM_DESCRIPTION, Default: 'counts'
 #' @param assay_1 PARAM_DESCRIPTION, Default: 'Spatial'
@@ -19,23 +21,30 @@
 #'  }
 #' }
 #' @seealso
+#'  \code{\link[checkmate]{checkFALSE}}
+#'  \code{\link[Seurat]{reexports}}
 #'  \code{\link[stringr]{case}}
+#'  \code{\link[Matrix]{colSums}}
 #'  \code{\link[tibble]{tibble}}
 #'  \code{\link[parallel]{mclapply}}
 #'  \code{\link[cooccur]{cooccur}}
 #'  \code{\link[plyr]{mapvalues}}
 #' @rdname run_cooccur
 #' @export
+#' @importFrom checkmate assert_false
+#' @importFrom Seurat Idents GetAssayData
 #' @importFrom stringr str_to_title
+#' @importFrom Matrix rowSums
 #' @importFrom tibble tibble
 #' @importFrom parallel mclapply
 #' @importFrom cooccur cooccur
 #' @importFrom plyr mapvalues
 #'
-#'
 run_cooccur <-
   function(obj,
            lr_network,
+           idents=NULL,
+           spots=NULL,
            threshold_gene_exp = 0,
            slot_1 = 'counts',
            assay_1 = 'Spatial',
@@ -44,6 +53,14 @@ run_cooccur <-
            prob = 'comb',
            cores = 4,
            ...) {
+    # only choose spots based on ident id or spot id
+    checkmate::assert_false((!is.null(idents) & !is.null(spots)))
+    if (!is.null(idents)) {
+      obj <- obj[, Seurat::Idents(obj) %in% idents]
+    }
+    if (!is.null(spots)) {
+      obj <- obj[, colnames(obj) %in% spots]
+    }
     # first to check the dataframe format is from nichnet?
     # download from https://zenodo.org/record/3260758/files/lr_network.rds?download=1
 
@@ -150,10 +167,12 @@ run_cooccur <-
     return(res_para_comb)
   }
 
-#' @title Generate a interaction score for each ligant-receptor pair.
+#' @title FUNCTION_TITLE
 #' @description FUNCTION_DESCRIPTION
 #' @param obj PARAM_DESCRIPTION
 #' @param lr_network PARAM_DESCRIPTION
+#' @param idents PARAM_DESCRIPTION, Default: NULL
+#' @param spots PARAM_DESCRIPTION, Default: NULL
 #' @param threshold_gene_exp PARAM_DESCRIPTION, Default: 0
 #' @param slot_1 PARAM_DESCRIPTION, Default: 'data'
 #' @param assay_1 PARAM_DESCRIPTION, Default: 'Spatial'
@@ -170,15 +189,17 @@ run_cooccur <-
 #'  }
 #' }
 #' @seealso
-#'  \code{\link[stringr]{case}}
+#'  \code{\link[checkmate]{checkFALSE}}
 #'  \code{\link[Seurat]{reexports}}
+#'  \code{\link[stringr]{case}}
 #'  \code{\link[Matrix]{colSums}}
 #'  \code{\link[tibble]{tibble}}
 #'  \code{\link[parallel]{mclapply}}
 #' @rdname run_iascore
 #' @export
+#' @importFrom checkmate assert_false
+#' @importFrom Seurat Idents GetAssayData
 #' @importFrom stringr str_to_title
-#' @importFrom Seurat GetAssayData
 #' @importFrom Matrix rowSums rowMeans
 #' @importFrom tibble tibble
 #' @importFrom parallel mclapply
@@ -186,6 +207,8 @@ run_cooccur <-
 run_iascore <-
   function(obj,
            lr_network,
+           idents=NULL,
+           spots=NULL,
            threshold_gene_exp = 0,
            slot_1 = 'data',
            assay_1 = 'Spatial',
@@ -193,6 +216,15 @@ run_iascore <-
            assay_2 = 'Spatial',
            cores = 4,
            ...) {
+    # only choose spots based on ident id or spot id
+    checkmate::assert_false((!is.null(idents) & !is.null(spots)))
+    if (!is.null(idents)) {
+      obj <- obj[, Seurat::Idents(obj) %in% idents]
+    }
+    if (!is.null(spots)) {
+      obj <- obj[, colnames(obj) %in% spots]
+    }
+
     # first to check the dataframe format is from nichnet?
     # download from https://zenodo.org/record/3260758/files/lr_network.rds?download=1
 

@@ -7,6 +7,8 @@
 run_cooccur(
   obj,
   lr_network,
+  idents = NULL,
+  spots = NULL,
   threshold_gene_exp = 0,
   slot_1 = "counts",
   assay_1 = "Spatial",
@@ -21,6 +23,10 @@ run_cooccur(
 \item{obj}{PARAM_DESCRIPTION}
 
 \item{lr_network}{PARAM_DESCRIPTION}
+
+\item{idents}{PARAM_DESCRIPTION, Default: NULL}
+
+\item{spots}{PARAM_DESCRIPTION, Default: NULL}
 
 \item{threshold_gene_exp}{PARAM_DESCRIPTION, Default: 0}
 
@@ -55,7 +61,10 @@ if(interactive()){
 }
 }
 \seealso{
-\code{\link[stringr]{case}}
+\code{\link[checkmate]{checkFALSE}}
+ \code{\link[Seurat]{reexports}}
+ \code{\link[stringr]{case}}
+ \code{\link[Matrix]{colSums}}
  \code{\link[tibble]{tibble}}
  \code{\link[parallel]{mclapply}}
  \code{\link[cooccur]{cooccur}}
