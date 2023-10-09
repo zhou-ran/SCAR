@@ -108,10 +108,11 @@ calculate_score <- function(obj,
     colnames(signature_exp) <-
       colnames(GetAssayData(obj, slot = 'count', assay = assay))
 
-    obj[[glue::glue('score{signatures}')]] <-
+    obj[[glue::glue('score{costume_label}')]] <-
       CreateAssayObject(data = as.matrix(signature_exp))
   }
 
+  # load gene signatures based on ssgsea
   if (method == "ssgsea") {
     gsva_es <-
       gsva(
