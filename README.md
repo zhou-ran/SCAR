@@ -1,4 +1,14 @@
-# SRCA
+# SCAR
 
-SRCA (**S**patially **R**esolved **C**himeric **A**nalysis) is a package designed for the analysis of spatial RNA-seq data within chimeric tumor models.
+SCAR (**S**patially-resolved **C**himeric **A**nalyze**R**) is a specialized package for analyzing spatial RNA-seq data derived from chimeric tumor models. Built on the [SeuratData](https://github.com/satijalab/seurat-data) framework, SCAR seamlessly integrates into the [Seurat](https://github.com/satijalab/seurat) ecosystem, enabling users to leverage its comprehensive analysis tools.
+
+## Installation
+
+
+```
+
+install.package('devtools')
+devtools::install_github('zhou-ran/SCAR')
+
+```
 
