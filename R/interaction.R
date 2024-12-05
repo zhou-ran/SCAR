@@ -1,16 +1,16 @@
 #' @title FUNCTION_TITLE
 #' @description FUNCTION_DESCRIPTION
-#' @param obj PARAM_DESCRIPTION
-#' @param lr_network PARAM_DESCRIPTION
-#' @param idents PARAM_DESCRIPTION, Default: NULL
-#' @param spots PARAM_DESCRIPTION, Default: NULL
-#' @param threshold_gene_exp PARAM_DESCRIPTION, Default: 0
-#' @param slot_1 PARAM_DESCRIPTION, Default: 'counts'
-#' @param assay_1 PARAM_DESCRIPTION, Default: 'Spatial'
-#' @param slot_2 PARAM_DESCRIPTION, Default: 'counts'
-#' @param assay_2 PARAM_DESCRIPTION, Default: 'Spatial'
-#' @param prob PARAM_DESCRIPTION, Default: 'comb'
-#' @param cores PARAM_DESCRIPTION, Default: 4
+#' @param obj A SeuratData object.
+#' @param lr_network LR database which was provided by SCAR
+#' @param idents Only check the given cluster which should be one of cluster in `Idents(obj)`, Default: NULL
+#' @param spots Only check the given spots, Default: NULL
+#' @param threshold_gene_exp The threshold for considering a gene as expressed, Default: 0
+#' @param slot_1 the slot of dataset1 used for LR analysis, Default: 'data'
+#' @param assay_1 the assay of dataset1 used for LR analysis, Default: 'Spatial'
+#' @param slot_2 the slot of dataset2 used for LR analysis, Default: 'data'
+#' @param assay_2 the assay of dataset2 used for LR analysis, Default: 'Spatial'
+#' @param cores the core for analysis, Default: 4
+#' @param prob Should co-occurrence probabilities be calculated using the hypergeometric distribution (prob="hyper") or the combinatorics approach from Veech 2013 (prob="comb"). Default: 'comb'
 #' @param ... PARAM_DESCRIPTION
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
@@ -46,10 +46,10 @@ run_cooccur <-
            idents=NULL,
            spots=NULL,
            threshold_gene_exp = 0,
-           slot_1 = 'counts',
            assay_1 = 'Spatial',
-           slot_2 = 'counts',
+           slot_1 = 'counts',
            assay_2 = 'Spatial',
+           slot_2 = 'counts',
            prob = 'comb',
            cores = 4,
            ...) {
@@ -169,16 +169,16 @@ run_cooccur <-
 
 #' @title FUNCTION_TITLE
 #' @description FUNCTION_DESCRIPTION
-#' @param obj PARAM_DESCRIPTION
-#' @param lr_network PARAM_DESCRIPTION
-#' @param idents PARAM_DESCRIPTION, Default: NULL
-#' @param spots PARAM_DESCRIPTION, Default: NULL
-#' @param threshold_gene_exp PARAM_DESCRIPTION, Default: 0
-#' @param slot_1 PARAM_DESCRIPTION, Default: 'data'
-#' @param assay_1 PARAM_DESCRIPTION, Default: 'Spatial'
-#' @param slot_2 PARAM_DESCRIPTION, Default: 'data'
-#' @param assay_2 PARAM_DESCRIPTION, Default: 'Spatial'
-#' @param cores PARAM_DESCRIPTION, Default: 4
+#' @param obj A SeuratData object.
+#' @param lr_network LR database which was provided by SCAR
+#' @param idents Only check the given cluster which should be one of cluster in `Idents(obj)`, Default: NULL
+#' @param spots Only check the given spots, Default: NULL
+#' @param threshold_gene_exp The threshold for considering a gene as expressed, Default: 0
+#' @param slot_1 the slot of dataset1 used for LR analysis, Default: 'data'
+#' @param assay_1 the assay of dataset1 used for LR analysis, Default: 'Spatial'
+#' @param slot_2 the slot of dataset2 used for LR analysis, Default: 'data'
+#' @param assay_2 the assay of dataset2 used for LR analysis, Default: 'Spatial'
+#' @param cores the core for analysis, Default: 4
 #' @param ... PARAM_DESCRIPTION
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
@@ -302,6 +302,9 @@ run_iascore <-
       unlist(lapply(interaction_df$score, function(x) {
         1 - sum(+(x > simu_distri)) / (length(simu_distri) + 1)
       }))
+    
+    interaction_df$padj <- p.adjust(interaction_df$pval)
+    interaction_df$label <- paste(interaction_df$from, interaction_df$to, sep = '_')
 
     return(interaction_df)
   }

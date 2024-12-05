@@ -1,13 +1,13 @@
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param obj PARAM_DESCRIPTION
-#' @param reference PARAM_DESCRIPTION
-#' @param doublet_mode PARAM_DESCRIPTION, Default: 'full'
-#' @param assay PARAM_DESCRIPTION, Default: 'Spatial'
-#' @param ncores PARAM_DESCRIPTION, Default: 1
+#' @title An integrative function for performing deconvolution analysis by RCTD.
+#' @description An integrative function for performing deconvolution analysis by RCTD.
+#' @param obj The SeuratData object for analysis.
+#' @param reference An RCTD-created reference. 
+#' @param if TRUE, uses RCTD doublet mode weights. Otherwise, uses RCTD full mode weights. Default: 'TRUE'
+#' @param assay The assasy used for deconvolution analysis, Default: 'Spatial'
+#' @param ncores The cores used for deconvolution analysis, Default: 1
 #' @param ... PARAM_DESCRIPTION
 #' @return a Seurat Object
-#' @details DETAILS
+#' @details An integrative function for performing deconvolution analysis by RCTD.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
@@ -29,7 +29,7 @@
 
 run_rctd <- function(obj,
                      reference,
-                     doublet_mode = 'full',
+                     doublet_mode = TRUE,
                      assay = 'Spatial',
                      ncores = 1,
                      ...) {
@@ -60,12 +60,12 @@ run_rctd <- function(obj,
 
 #' @title Perform de-convolution by DWLS
 #' @description Perform de-convolution by DWLS, more detailed information refer to \url{https://github.com/dtsoucas/DWLS}
-#' @param obj PARAM_DESCRIPTION
-#' @param reference PARAM_DESCRIPTION
-#' @param assay PARAM_DESCRIPTION, Default: 'Spatial'
-#' @param group.by PARAM_DESCRIPTION, Default: 'cluster'
-#' @param cutoff PARAM_DESCRIPTION, Default: 2
-#' @param n_cell PARAM_DESCRIPTION, Default: 50
+#' @param obj The SeuratData object for analysis.
+#' @param reference A raw count matrix which rownames is the gene id.
+#' @param assay The assasy used for deconvolution analysis, Default: 'Spatial'
+#' @param group.by The cluster id used for analysis, Default: 'cluster'
+#' @param cutoff cutoff used in Giotto deconvolution, Default: 2
+#' @param n_cell the number of spots expressed, Default: 50
 #' @param ... PARAM_DESCRIPTION
 #' @return a Seurat Object
 #' @details DETAILS
@@ -131,12 +131,12 @@ run_DWLS <- function(obj,
 
 #' @title FUNCTION_TITLE
 #' @description FUNCTION_DESCRIPTION
-#' @param obj PARAM_DESCRIPTION
-#' @param reference PARAM_DESCRIPTION
-#' @param sc_meta PARAM_DESCRIPTION
-#' @param assay PARAM_DESCRIPTION, Default: 'Spatial'
-#' @param minCountGene PARAM_DESCRIPTION, Default: 0
-#' @param minCountSpot PARAM_DESCRIPTION, Default: 0
+#' @param obj The SeuratData object for analysis.
+#' @param reference A dgCMatrix which rownames is the gene id.
+#' @param sc_meta A data.frome whcih contains c('cellID', 'cellType', 'sampleInfo') colnames.
+#' @param assay The assasy used for deconvolution analysis, Default: 'Spatial'
+#' @param minCountGene minCountGene, Default: 0
+#' @param minCountSpot minCountSpot, Default: 0
 #' @param ... PARAM_DESCRIPTION
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
@@ -195,111 +195,3 @@ run_CARD <- function(obj,
   return(obj)
 }
 
-#'
-#' #' @title FUNCTION_TITLE
-#' #' @description FUNCTION_DESCRIPTION
-#' #' @param obj PARAM_DESCRIPTION
-#' #' @param reference PARAM_DESCRIPTION
-#' #' @param sc_meta PARAM_DESCRIPTION
-#' #' @param assay PARAM_DESCRIPTION, Default: 'Spatial'
-#' #' @param ... PARAM_DESCRIPTION
-#' #' @return OUTPUT_DESCRIPTION
-#' #' @details DETAILS
-#' #' @examples
-#' #' \dontrun{
-#' #' if(interactive()){
-#' #'  #EXAMPLE1
-#' #'  }
-#' #' }
-#' #' @seealso
-#' #'  \code{\link[checkmate]{checkClass}}, \code{\link[checkmate]{checkLogical}}
-#' #'  \code{\link[assertable]{assert_colnames}}
-#' #'  \code{\link[SingleCellExperiment]{SingleCellExperiment-class}}, \code{\link[SingleCellExperiment]{colLabels}}
-#' #'  \code{\link[scuttle]{logNormCounts}}
-#' #'  \code{\link[scran]{modelGeneVar}}, \code{\link[scran]{getTopHVGs}}, \code{\link[scran]{scoreMarkers}}
-#' #'  \code{\link[S4Vectors]{DataFrame-class}}, \code{\link[S4Vectors]{S4VectorsOverview}}
-#' #'  \code{\link[Seurat]{reexports}}
-#' #'  \code{\link[SpatialExperiment]{SpatialExperiment-class}}, \code{\link[SpatialExperiment]{SpatialExperiment}}
-#' #'  \code{\link[SPOTlight]{SPOTlight}}
-#' #' @rdname run_spotlight
-#' #' @export
-#' #' @importFrom checkmate assert_class assert_logical
-#' #' @importFrom assertable assert_colnames
-#' #' @importFrom SingleCellExperiment SingleCellExperiment colLabels
-#' #' @importFrom scuttle logNormCounts
-#' #' @importFrom scran modelGeneVar getTopHVGs scoreMarkers
-#' #' @importFrom S4Vectors DataFrame
-#' #' @importFrom Seurat GetTissueCoordinates GetAssayData
-#' #' @importFrom SpatialExperiment SpatialExperiment
-#' #' @importFrom SPOTlight SPOTlight
-#' #'
-#' run_spotlight <-
-#'   function(obj, reference, sc_meta, assay = 'Spatial', ...) {
-#'     checkmate::assert_class(reference, 'dgCMatrix')
-#'     # checkmate::assert_logical(identical())
-#'
-#'     assertable::assert_colnames(
-#'       data = sc_meta,
-#'       colnames = c('cellID', 'cellType', 'sampleInfo'),
-#'       quiet = T
-#'     )
-#'
-#'     checkmate::assert_logical(identical(colnames(reference), sc_meta$cellID))
-#'
-#'     sce <-
-#'       SingleCellExperiment::SingleCellExperiment(list(counts = reference))
-#'
-#'     sce$cell_type <- sc_meta$cellType
-#'
-#'     SingleCellExperiment::colLabels(sce) <- sce$cell_type
-#'
-#'     sce <- scuttle::logNormCounts(sce)
-#'
-#'     dec <- scran::modelGeneVar(sce)
-#'     hvg <- scran::getTopHVGs(dec, n = 3000)
-#'
-#'     genes <- !grepl(pattern = "^Rp[l|s]|Mt", x = rownames(sce))
-#'     suppressMessages(require(S4Vectors))
-#'     mgs <-
-#'       scran::scoreMarkers(x=sce, subset.row = genes)
-#'
-#'     mgs_fil <- lapply(names(mgs), function(i) {
-#'       x <- mgs[[i]]
-#'       # Filter and keep relevant marker genes, those with AUC > 0.8
-#'       x <- x[x$mean.AUC > 0.8, ]
-#'       # Sort the genes from highest to lowest weight
-#'       x <- x[order(x$mean.AUC, decreasing = TRUE), ]
-#'       # Add gene and cluster id to the dataframe
-#'       x$gene <- rownames(x)
-#'       x$cluster <- i
-#'       data.frame(x)
-#'     })
-#'
-#'     mgs_df <- do.call(rbind, mgs_fil)
-#'
-#'     cd <- S4Vectors::DataFrame(Seurat::GetTissueCoordinates(obj))
-#'
-#'     spe <- SpatialExperiment::SpatialExperiment(
-#'       assay = list(counts = as.matrix(
-#'         Seurat::GetAssayData(obj, slot = 'count', assay = assay)
-#'       )),
-#'       colData = cd,
-#'       spatialCoordsNames = c("imagerow", "imagecol")
-#'     )
-#'
-#'     res <- SPOTlight::SPOTlight(
-#'       x = sce,
-#'       y = spe,
-#'       groups = sce$cell_type,
-#'       mgs = mgs_df,
-#'       hvg = hvg,
-#'       weight_id = "mean.AUC",
-#'       group_id = "cluster",
-#'       gene_id = "gene"
-#'     )
-#'
-#'     obj@misc$SPOTlight <- as.data.frame(res$mat)
-#'
-#'     return(obj)
-#'
-#'   }

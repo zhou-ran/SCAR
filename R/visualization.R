@@ -1,15 +1,15 @@
 #' @title FUNCTION_TITLE
 #' @description FUNCTION_DESCRIPTION
-#' @param obj PARAM_DESCRIPTION
-#' @param idents PARAM_DESCRIPTION, Default: NULL
-#' @param spots PARAM_DESCRIPTION, Default: NULL
-#' @param assay_1 PARAM_DESCRIPTION, Default: 'Spatial'
-#' @param gene_1 PARAM_DESCRIPTION, Default: NULL
-#' @param assay_2 PARAM_DESCRIPTION, Default: 'Spatial'
-#' @param gene_2 PARAM_DESCRIPTION, Default: NULL
-#' @param slot PARAM_DESCRIPTION, Default: 'data'
-#' @param pt.size.factor PARAM_DESCRIPTION, Default: 1
-#' @param max.cutoff PARAM_DESCRIPTION, Default: NA
+#' @param obj An SeuratData object.
+#' @param idents the cluster id used for downstream analysis, Default: NULL
+#' @param spots the spot id used for downstream analysis, Default: NULL
+#' @param assay_1 the assay_1 used for downstream analysis, Default: 'Spatial'
+#' @param gene_1 the gene_1 used for downstream analysis, Default: NULL
+#' @param assay_2 the assay_2 used for downstream analysis, Default: 'Spatial'
+#' @param gene_2 the gene_2 used for downstream analysis, Default: NULL
+#' @param slot the slot used for downstream analysis, Default: 'data'
+#' @param pt.size.factor pt.size.factor, Default: 1
+#' @param max.cutoff The max cutoff for visualization, Default: NA
 #' @param ... PARAM_DESCRIPTION
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS

@@ -1,11 +1,11 @@
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param obj PARAM_DESCRIPTION
-#' @param assay PARAM_DESCRIPTION
-#' @param signatures PARAM_DESCRIPTION, Default: 'KEGG'
-#' @param costume_label PARAM_DESCRIPTION, Default: 'costume'
-#' @param ncores PARAM_DESCRIPTION, Default: 1
-#' @param method_use PARAM_DESCRIPTION, Default: 'AUC'
+#' @title calculate geneSet score
+#' @description Calculate gene set score based on multiple methods
+#' @param obj The SeuratData object for analysis.
+#' @param assay The assasy used for score analysis.
+#' @param signatures GeneSet used which could be a GeneSetCollection object, name of Gmt used in GSEABase and one of c('KEGG_metabolism_nc', 'REACTOME_metabolism'), Default: 'KEGG'
+#' @param costume_label The label of score, Default: 'costume'
+#' @param ncores The core used for downstream analysis, Default: 1
+#' @param method_use Method used for calculating score, including c("AUC","VISION","ssgsea"), Default: 'AUC'
 #' @param ... PARAM_DESCRIPTION
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
@@ -93,7 +93,7 @@ calculate_score <- function(obj,
   }
 
   # load gene signatures based on VISION
-  if (method == "VISION") {
+  if (method_use == "VISION") {
     n.umi <-
       Matrix::colSums(GetAssayData(obj, slot = 'count', assay = assay))
 
@@ -113,7 +113,7 @@ calculate_score <- function(obj,
   }
 
   # load gene signatures based on ssgsea
-  if (method == "ssgsea") {
+  if (method_use == "ssgsea") {
     gsva_es <-
       gsva(
         as.matrix(obj@assays$SCThg@counts),

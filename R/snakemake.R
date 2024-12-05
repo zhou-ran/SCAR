@@ -1,17 +1,32 @@
 
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param dir PARAM_DESCRIPTION
-#' @param config_list PARAM_DESCRIPTION, Default: NULL
-#' @param overwrite PARAM_DESCRIPTION, Default: FALSE
+#' @title Generate snakemake configure folder for demultiplexing reads
+#' @description Generate snakemake configure folder for demultiplexing reads
+#' @param dir the name of folder to save the snakemake configure.
+#' @param config_list the configure ionformation to generate yaml file, Default: NULL
+#' @param overwrite Whether to overwrite the folder if existed, Default: FALSE
 #' @param ... PARAM_DESCRIPTION
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
 #' @examples
 #' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
+#' config_lst <-       list(
+#'   'output' = 'data',
+#'   'samples' = c('LL'),
+#'   'FASTQ' = 'fq',
+#'   'STAR' = list('mix_index' = 'index',
+#'                 'cores' = as.integer(8)),
+#'   'soft' = list(
+#'     'STAR' = 'STAR',
+#'     'seqkit' = 'seqkit',
+#'     'split_script' = 'bin/split_read_id.py',
+#'     'seqkt' = 'seqkt',
+#'     'python' = 'python'
+#'   )
+#' )
+#'
+#' init_smk_script(dir = 'smk_test/',
+#'                 config_list = config_lst,
+#'                 overwrite = T)
 #' }
 #' @seealso
 #'  \code{\link[checkmate]{checkPathForOutput}}, \code{\link[checkmate]{checkList}}
@@ -49,20 +64,7 @@ init_smk_script <-
     file.copy(from = split_script,
               to = file.path(dir, 'bin'),
               overwrite = overwrite)
-    # config_lst <-       list(
-    #   'output' = 'data',
-    #   'samples' = c('LL'),
-    #   'FASTQ' = 'fq',
-    #   'STAR' = list('mix_index' = 'index'),
-    #                 'cores' = as.integer(8)),
-    #   'soft' = list(
-    #     'STAR' = 'STAR',
-    #     'seqkit' = 'seqkit',
-    #     'split_script' = 'bin/split_read_id.py',
-    #     'seqkt' = 'seqkt',
-    #     'python' = 'python'
-    #   )
-    # )
+
     yaml::write_yaml(x = config_list,
                      file = file.path(dir, 'config.yaml'))
   }
