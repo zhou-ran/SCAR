@@ -12,3 +12,12 @@ devtools::install_github('zhou-ran/SCAR')
 
 ```
 
+How to use please refer to [document](https://github.com/zhou-ran/SCAR/document)
+
+
+## Citation
+
+
+If you use SCAPE in your publication, please cite SCAR by
+
+
