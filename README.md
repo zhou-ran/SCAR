@@ -12,7 +12,7 @@ devtools::install_github('zhou-ran/SCAR')
 
 ```
 
-How to use please refer to [document](https://github.com/zhou-ran/SCAR/document)
+How to use please refer to [document](https://github.com/zhou-ran/SCAR/tree/main/document)
 
 
 ## Citation
