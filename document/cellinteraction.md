@@ -86,6 +86,72 @@ saveRDS(db3, file = 'cellchatdb_mm_hg.Rds')
 ## Implement cell communication analysis
 
 ```r
+library(Seurat)
+library(CellChat)
+
+dih = db_human@assays$SCT@data
+rownames(dih) <- paste0('hg_', rownames(dih))
+dim = db_mm@assays$SCT@data
+rownames(dim) <- paste0('mm_', rownames(dim))
+
+meta = data.frame(labels = obj_current$group, row.names = rownames(obj_current@meta.data))
+
+spatial.locs = Seurat::GetTissueCoordinates(obj_current, scale = NULL, cols = c("imagerow", "imagecol"))
+
+spot.size = 65 # 10x visium
+scalefactors = jsonlite::fromJSON(
+  txt = file.path(
+    "/mnt/raid61/TNP_spatial/analysis/alignment/2024-0601-split/data/hg38/BNI_23_HCT/BNI_23_HCT/outs/spatial/",
+    'scalefactors_json.json'
+  )
+)
+
+
+conversion.factor = spot.size/scalefactors$spot_diameter_fullres
+spatial.factors = data.frame(ratio = conversion.factor, tol = spot.size/2)
+
+d.spatial <-
+  computeCellDistance(coordinates = spatial.locs,
+                      ratio = spatial.factors$ratio,
+                      tol = spatial.factors$tol)
+
+
+cellchat <-
+  createCellChat(
+    object = rbind(dih, dim),
+    meta = meta,
+    group.by = "labels",
+    datatype = "spatial",
+    coordinates = spatial.locs,
+    spatial.factors = spatial.factors
+  )
+
+
+cellchat@DB <- readRDS('cellchatdb_mm_hg.Rds')
+
+cellchat <- subsetData(cellchat)
+future::plan("multisession", workers = 4) 
+cellchat <- identifyOverExpressedGenes(cellchat)
+cellchat <- identifyOverExpressedInteractions(cellchat, variable.both = F)
+
+cellchat <-
+  computeCommunProb(
+    cellchat,
+    type = "truncatedMean",
+    trim = 0.1,
+    distance.use = TRUE,
+    interaction.range = 250,
+    scale.distance = 0.01,
+    contact.dependent = TRUE,
+    contact.range = 100
+  )
+
+
+cellchat <- filterCommunication(cellchat, min.cells = 10)
+cellchat <- computeCommunProbPathway(cellchat)
+cellchat <- aggregateNet(cellchat)
+saveRDS(cellchat, 'bni_cellchat.Rds')
+
 
 ```
 
