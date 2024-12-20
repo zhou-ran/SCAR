@@ -3,7 +3,7 @@
 
 ### Prepare configure information for snakemake
 
-```
+```r
 library(SCAR)
 
 config_lst <- list(
@@ -32,7 +32,7 @@ init_smk_script(dir = 'smk_test/',
 
 ### Run the pipeline using snakemake 
 
-```
+```bash
 pip install snakemake 
 
 cd smk_test/

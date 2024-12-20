@@ -4,7 +4,7 @@
 
 Rename the LR pairs for analysis the mouse and human cell interactions.
 
-'''r
+```r
 
 # Function to capitalize the first letter of a string
 capitalize_first <- function(x) {
@@ -80,8 +80,7 @@ db3$geneInfo <- rbind(db1$geneInfo, db2$geneInfo)
 saveRDS(db3, file = 'cellchatdb_mm_hg.Rds')
 
 
-
-'''
+```
 
 ## Implement cell communication analysis
 
