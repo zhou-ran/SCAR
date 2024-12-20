@@ -2,6 +2,7 @@
 
 SCAR (**S**patially-resolved **C**himeric **A**nalyze**R**) is a specialized package for analyzing spatial RNA-seq data derived from chimeric tumor models. Built on the [SeuratData](https://github.com/satijalab/seurat-data) framework, SCAR seamlessly integrates into the [Seurat](https://github.com/satijalab/seurat) ecosystem, enabling users to leverage its comprehensive analysis tools.
 
+![img](https://github.com/zhou-ran/SCAR/tree/main/document/ci.png)
 ## Installation
 
 
